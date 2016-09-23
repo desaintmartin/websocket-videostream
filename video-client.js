@@ -77,10 +77,43 @@ var myStream = new WSStream('ws://' + location.hostname + ':8343');
 
 mjpegDecoder = new JPEGExtractorStream();
 
-if ('MediaSource' in window && MediaSource.isTypeSupported(mimeCodec)) {
+if (!('MediaSource' in window && MediaSource.isTypeSupported(mimeCodec))) {
+    mjpegDecoder.on('image', function (imgData) {
+        var img = null;
+        try {
+            img = new Image;
+        } catch(e) {
+            //console.log
+        }
+        var w,h;
+        var uInt8Array = imgData;
+        var i = uInt8Array.length;
+        var binaryString = [i];
+        while (i--) {
+          binaryString[i] = String.fromCharCode(uInt8Array[i]);
+        }
+        var data = binaryString.join('');
+        var base64 = window.btoa(data);
+        img.src = "data:image/jpeg;base64," + base64;
+        img.onload = function () {
+             w=img.width; h=img.height;
+             ctxt.drawImage(img,0,0,w,h,0,0,ctxt.canvas.width,ctxt.canvas.height);
+        };
+        img.onerror = function (stuff) {
+        };
+    });
+
+    myStream.ondata = function(_d) {
+        mjpegDecoder.write(_d);
+    }
+    myStream.init();
+
+} else {
+    console.error('Video MediaElement supports: '+mimeCodec+'');
     mediaSource = new MediaSource();
     video.src = window.URL.createObjectURL(mediaSource);
     video.style.display = 'block';
+    canvas.style.display = 'hidden';
     /* bind mediaSource buffer to websocket stream data */
     mediaSource.addEventListener('sourceopen', function(){
 
@@ -112,44 +145,5 @@ if ('MediaSource' in window && MediaSource.isTypeSupported(mimeCodec)) {
             }
             myStream.init();
     });
-
-
-} else {
-
-
-    console.error('Video MediaElement does not support: '+mimeCodec+' -> trying with MotionJPEG');
-    canvas.style.display = 'block';
-
-
-    mjpegDecoder.on('image', function (imgData) {
-
-        var img = null;
-        try {
-            img = new Image;
-        } catch(e) {
-            //console.log
-        }
-        var w,h;
-        var uInt8Array = imgData;
-        var i = uInt8Array.length;
-        var binaryString = [i];
-        while (i--) {
-          binaryString[i] = String.fromCharCode(uInt8Array[i]);
-        }
-        var data = binaryString.join('');
-        var base64 = window.btoa(data);
-        img.src = "data:image/jpeg;base64," + base64;
-        img.onload = function () {
-             w=img.width; h=img.height;
-             ctxt.drawImage(img,0,0,w,h,0,0,ctxt.canvas.width,ctxt.canvas.height);
-        };
-        img.onerror = function (stuff) {
-        };
-    });
-
-    myStream.ondata = function(_d) {
-        mjpegDecoder.write(_d);
-    }
-    myStream.init();
 }
 

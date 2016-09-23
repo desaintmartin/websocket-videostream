@@ -61,7 +61,9 @@ module.exports.start = function(opts, cb) {
   server.listen(port, cb)
 
   function video(stream) {
-    ffmpeg_process.stdout.pipe(stream);
+    try {
+      ffmpeg_process.stdout.pipe(stream);
+    } catch(e) {console.log('foutu')}
   }
 }
 
