@@ -1,0 +1,71 @@
+/*┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+  ┃ main                                                                                      ┃
+  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛*/
+body {
+    margin:0;
+    padding:0;
+}
+
+/*┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+  ┃ console log                                                                                      ┃
+  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛*/
+
+#console-log-div {
+    width: 98%;
+    height: 95vh;
+    background-color: rgba(10,10,10,0.6);
+    /*z-index: 9999;
+    position: absolute;
+    left: 0px;
+    top: 15px;
+    border: 1px solid rgba(150,150,150,0.8);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 5px 10px;*/
+    
+    display:block;
+    visibility:visible;
+    /*display:none;
+    visibility:hidden;*/
+    
+}
+#console-log-text {
+    width: 100%;
+    height: 97%;
+    font-family: monospace;
+    margin-top: 0px;
+    margin-left: 10px;
+    margin-right: 10px;
+    /*white-space: pre;*/
+    white-space: pre-wrap; /* css-3 */
+    white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+    white-space: -pre-wrap; /* Opera 4-6 */    
+    white-space: -o-pre-wrap; /* Opera 7 */    
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
+    overflow-y: scroll;
+    color:white;
+}
+legend {
+    color:white;
+    font-size:28px;
+}
+
+#log {
+    z-index: 9999999;
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: 10px 0px;
+    display: none;
+    white-space: pre;
+    font-family: monospace;
+    color:white;
+}
+#log:before {
+    content: "log javascript:";
+    font-style: italic;
+    color:white;
+}
+
