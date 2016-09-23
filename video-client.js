@@ -1,21 +1,5 @@
 var ws = require('websocket-stream')
 
-//window.WSStream=function(wsurl) {
-//    this.wsurl = wsurl;
-//
-//    this.init = function() {
-//        var self=this;
-//
-//        this.stream = ws(wsurl);//ws('ws://localhost:8343')
-//        this.stream.write(new Buffer('hello'));
-//        this.stream.on('data', function(data) {
-//            //console.log("WS DATA",data.toString()); //this is binary
-//            self.ondata(data);
-//        });
-//
-//    };
-
-
 window.WSStream=function(wsurl) {
     this.wsurl = wsurl;
 
