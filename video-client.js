@@ -1,5 +1,5 @@
 var ws = require('websocket-stream')
-var jpegExtractor = require('jpeg-extractor')
+var jpegExtractor = require('./jpeg-extractor.js')
 
 var WSStream = function(wsurl) {
     this.wsurl = wsurl;
@@ -75,7 +75,7 @@ var mimeCodec = 'video/x-msvideo';//'video/webm; codecs="vp8,vorbis"';//'video/m
 /* special websocket stream */
 var myStream = new WSStream('ws://' + location.hostname + ':8343');
 
-mjpegDecoder = new jpegExtractor();
+mjpegDecoder = new JPEGExtractorStream();
 
 if ('MediaSource' in window && MediaSource.isTypeSupported(mimeCodec)) {
     mediaSource = new MediaSource();

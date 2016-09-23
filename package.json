@@ -24,7 +24,6 @@
   "dependencies": {
     "express": "^4.14.0",
     "colors": "^1.1.2",
-    "jpeg-extractor": "^0.1.3",
     "websocket-stream": "^3.3.0"
   },
   "devDependencies": {
