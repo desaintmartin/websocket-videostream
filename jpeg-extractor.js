@@ -10,7 +10,7 @@
  * Dep`s
  */
 
-//const bufferTools = require('buffertools');
+const bufferTools = require('browserify-buffertools');
 const util = require('util');
 const Transform = require('stream').Transform;
 
