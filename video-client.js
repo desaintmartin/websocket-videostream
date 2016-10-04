@@ -78,6 +78,7 @@ var myStream = new WSStream('ws://' + location.hostname + ':8343');
 mjpegDecoder = new JPEGExtractorStream();
 
 if (!('MediaSource' in window && MediaSource.isTypeSupported(mimeCodec))) {
+    console.log('Video MediaElement does not support: '+mimeCodec+', fallback to mjpeg.');
     mjpegDecoder.on('image', function (imgData) {
         var img = null;
         try {
@@ -109,7 +110,7 @@ if (!('MediaSource' in window && MediaSource.isTypeSupported(mimeCodec))) {
     myStream.init();
 
 } else {
-    console.error('Video MediaElement supports: '+mimeCodec+'');
+    console.log('Video MediaElement supports: '+mimeCodec+'');
     mediaSource = new MediaSource();
     video.src = window.URL.createObjectURL(mediaSource);
     video.style.display = 'block';

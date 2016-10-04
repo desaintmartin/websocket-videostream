@@ -8,10 +8,9 @@ var url = module.exports.url = 'ws://localhost:' + module.exports.port;
 
 var ffmpeg_bin='/usr/bin/ffmpeg';
 var ffmpeg_args = [
-        '-re',
         //'-i','http://live.francetv.fr/simulcast/France_Info/hls/index.m3u8',
-        '-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=152400.m3u8',
-        //'-i', 'rtmp://127.0.0.1:1935/live/ingest', // srs
+        //'-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=152400.m3u8',
+        '-i', 'rtmp://127.0.0.1:1935/live/latency', // srs
         //'-codec:v','libx264',
         //'-profile:v','baseline',
         //'-level','3',
@@ -20,11 +19,21 @@ var ffmpeg_args = [
         '-an',
         '-codec:v','mjpeg', // don't know why I can't make it work again with webm or mp4... most probably an issue with initialisation segment...
         '-b:v','1000k',
-        '-vf', "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: text='%{localtime\\:%T}': fontcolor=white@0.8: x=7: y=7",
-        //'-f', 'webm',
+        //'-vcodec', 'copy',
+        //'-reset_timestamps', '1',
+        //'-vsync', '1',
+        //'-movflags', 'frag_keyframe',
+        //'-flags', 'global_header',
+        //'-bsf:v', 'dump_extra',
+        //'-vf', "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: text='%{localtime\\:%T}': fontcolor=white@0.8: x=7: y=7",
+        '-bufsize', '500k',
+        '-maxrate', '2000k',
+        //'-f', 'mp4',
         '-f', 'avi',
         '-'              // Output on stdout
   ];
+
+//var mp4Headers = [];
 
 function ffmpeg() {
   var ffmpeg = spawn(ffmpeg_bin, ffmpeg_args);
@@ -36,6 +45,17 @@ function ffmpeg() {
             console.error('failed to start ' + ffmpeg);
             process.exit(1);
       }
+  });
+  //ffmpeg.stdout.on('data', function(data) {
+  //    if (mp4Headers.length < 3) {
+  //          mp4Headers.push(data);
+  //    }
+  //});
+  ffmpeg.on("exit", function (code) {
+      console.log("FFMPEG terminated with code " + code);
+  });
+  ffmpeg.on("error", function (e) {
+      console.log("FFMPEG system error: " + e);
   });
   return ffmpeg
 }
@@ -55,15 +75,18 @@ module.exports.start = function(opts, cb) {
 
   server = http.createServer()
   opts.server = server
+  opts.binary = true
 
   websocket.createServer(opts, video)
 
   server.listen(port, cb)
 
   function video(stream) {
-    try {
-      ffmpeg_process.stdout.pipe(stream);
-    } catch(e) {console.log('foutu')}
+    // Re-send buffered mp4 packets
+    //for (var i = 0; i < mp4Headers.length; i++) {
+    //  stream.write(mp4Headers[i]);
+    //}
+    ffmpeg_process.stdout.pipe(stream);
   }
 }
 
