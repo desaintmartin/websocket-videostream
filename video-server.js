@@ -1,6 +1,8 @@
 var http = require('http');
 var websocket = require('websocket-stream');
 var spawn = require('child_process').spawn;
+var devnull = require('dev-null');
+
 var server = null
 
 var ffmpeg_bin='/usr/bin/ffmpeg';
@@ -61,6 +63,8 @@ function ffmpeg() {
       console.log("FFMPEG system error: " + e);
       process.exit(1);
   });
+  // Pipe to /dev/null so that no buffering of pipe is done when no client is connected
+  ffmpeg.stdout.pipe(devnull());
   return ffmpeg
 }
 
