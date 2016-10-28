@@ -51,9 +51,11 @@ function ffmpeg() {
   //});
   ffmpeg.on("exit", function (code) {
       console.log("FFMPEG terminated with code " + code);
+      process.exit(1);
   });
   ffmpeg.on("error", function (e) {
       console.log("FFMPEG system error: " + e);
+      process.exit(1);
   });
   return ffmpeg
 }

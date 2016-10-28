@@ -1,33 +1,34 @@
-var logger = require('./logger');
+var cluster = require('cluster');
 var express = require('express');
-var app = require('express')();
-var http = require('http').Server(app);
+var http = require('http');
 var websocket = require('./');
+var logger = require('./logger');
 var video = require('./video-server.js');
 
-/*┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-  ┃ route static files                                                                               ┃
-  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛*/
+if (cluster.isMaster) {
+  cluster.fork();
 
-app.use(express.static(__dirname + '/www/'));
+  cluster.on('exit', function(worker, code, signal) {
+    cluster.fork();
+  });
+}
 
+if (cluster.isWorker) {
+  var app = express();
+  app.use(express.static(__dirname + '/www/'));
 
-/*┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-  ┃ start servers                                                                                    ┃
-  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛*/
+  http_port = 80;
+  server = http.Server(app);
 
-http_port = 80;
+  video.start(
+    {server: server},
+    function(){
+      console.log('video server is running')
+    }
+  )
 
-video.start(
-  {server: http},
-  function(){
-    console.log('video server is running')
-  }
-)
-
-
-
-http.listen(http_port, function(){
-  logger.info('listening on *:'+http_port);
-});
+  server.listen(http_port, function(){
+    logger.info('listening on *:'+http_port);
+  });
+}
 
