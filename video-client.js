@@ -12,7 +12,7 @@ var mimeCodec = 'video/x-msvideo';//'video/webm; codecs="vp8,vorbis"';//'video/m
 
 /* special websocket stream */
 var myStream = new WSStream('ws://' + location.hostname);
-myStream.onclose = function() {
+myStream.onclose = myStream.onerror = function() {
   // Reload the page on server-side error (it should not be closed)
   setTimeout(function() {
     window.location.reload();

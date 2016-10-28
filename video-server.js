@@ -24,11 +24,13 @@ var ffmpeg_args = [
         //'-flags', 'global_header',
         //'-bsf:v', 'dump_extra',
         //'-vf', "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: text='%{localtime\\:%T}': fontcolor=white@0.8: x=7: y=7",
-        '-bufsize', '500k',
-        '-maxrate', '2000k',
+        '-bufsize', '5000k',
+        '-maxrate', '3000k',
+        //'-fflags', 'nobuffer',
+        '-avioflags', 'direct',
         //'-f', 'mp4',
         '-f', 'avi',
-        '-'              // Output on stdout
+        '-'              // Output on stdout, https://www.ffmpeg.org/ffmpeg-protocols.html#toc-pipe
   ];
 
 //var mp4Headers = [];
