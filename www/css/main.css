@@ -4,6 +4,14 @@
 body {
     margin:0;
     padding:0;
+    /* For fullscreen in webkit/blink, element height needs to be adjusted... */
+    height: 100%;
+    background-color: black;
+}
+
+canvas {
+  width:100vw;
+  height:56.25vw;
 }
 
 /*┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -24,12 +32,12 @@ body {
     border-bottom-right-radius: 5px;
     border-bottom-left-radius: 5px;
     padding: 5px 10px;*/
-    
+
     display:block;
     visibility:visible;
     /*display:none;
     visibility:hidden;*/
-    
+
 }
 #console-log-text {
     width: 100%;
@@ -41,8 +49,8 @@ body {
     /*white-space: pre;*/
     white-space: pre-wrap; /* css-3 */
     white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
-    white-space: -pre-wrap; /* Opera 4-6 */    
-    white-space: -o-pre-wrap; /* Opera 7 */    
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
     word-wrap: break-word; /* Internet Explorer 5.5+ */
     overflow-y: scroll;
     color:white;
