@@ -3,14 +3,12 @@ var websocket = require('websocket-stream');
 var spawn = require('child_process').spawn;
 var server = null
 
-var port = module.exports.port = 8343;
-var url = module.exports.url = 'ws://localhost:' + module.exports.port;
-
 var ffmpeg_bin='/usr/bin/ffmpeg';
 var ffmpeg_args = [
+        '-re',
         //'-i','http://live.francetv.fr/simulcast/France_Info/hls/index.m3u8',
-        //'-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=152400.m3u8',
-        '-i', 'rtmp://127.0.0.1:1935/live/latency', // srs
+        '-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=553600.m3u8',
+        //'-i', 'rtmp://127.0.0.1:1935/live/latency', // srs
         //'-codec:v','libx264',
         //'-profile:v','baseline',
         //'-level','3',
@@ -73,13 +71,16 @@ module.exports.start = function(opts, cb) {
     opts = {};
   }
 
-  server = http.createServer()
-  opts.server = server
-  opts.binary = true
+  if (opts.server) {
+    server = opts.server;
+  } else {
+    server = http.createServer();
+    server.listen(80, cb)
+    opts.server = server;
+  }
+  opts.binary = true;
 
-  websocket.createServer(opts, video)
-
-  server.listen(port, cb)
+  websocket.createServer(opts, video);
 
   function video(stream) {
     // Re-send buffered mp4 packets

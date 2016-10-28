@@ -16,11 +16,14 @@ app.use(express.static(__dirname + '/www/'));
   ┃ start servers                                                                                    ┃
   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛*/
 
-http_port = 8082;
+http_port = 80;
 
-video.start(function(){
-  console.log('video server is running')
-})
+video.start(
+  {server: http},
+  function(){
+    console.log('video server is running')
+  }
+)
 
 
 

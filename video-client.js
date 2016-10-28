@@ -8,7 +8,7 @@ var WSStream = function(wsurl) {
         var self=this;
 
         try {
-            this.stream = ws(wsurl);//ws('ws://localhost:8343')
+            this.stream = ws(wsurl);
         } catch(e) {};
 
         this.stream.write(new Buffer('hello'));
@@ -73,7 +73,7 @@ var queue=[];
 var mimeCodec = 'video/x-msvideo';//'video/webm; codecs="vp8,vorbis"';//'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';//'video/mp4; codecs="avc1.42c01e"'
 
 /* special websocket stream */
-var myStream = new WSStream('ws://' + location.hostname + ':8343');
+var myStream = new WSStream('ws://' + location.hostname);
 
 mjpegDecoder = new JPEGExtractorStream();
 
