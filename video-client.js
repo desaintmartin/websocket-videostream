@@ -60,6 +60,10 @@ var WSStream = function(wsurl) {
             if(self.onerror)
                 self.onerror(event,self.wsurl);
         };
+
+        this.onclose = function() {
+          setTimeout(function(){window.location.reload();}, 2000);
+        }
     };
 }
 
