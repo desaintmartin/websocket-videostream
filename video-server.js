@@ -28,7 +28,9 @@ var ffmpeg_args = [
         '-maxrate', '3000k',
         //'-fflags', 'nobuffer',
         '-avioflags', 'direct',
+        '-flush_packets', '1',
         //'-f', 'mp4',
+        '-y',
         '-f', 'avi',
         '-'              // Output on stdout, https://www.ffmpeg.org/ffmpeg-protocols.html#toc-pipe
   ];
