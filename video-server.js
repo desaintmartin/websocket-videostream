@@ -3,14 +3,17 @@ var websocket = require('websocket-stream');
 var spawn = require('child_process').spawn;
 var devnull = require('dev-null');
 
+var log = require('./logger-server');
+
 var server = null
 
 var ffmpeg_bin='/usr/bin/ffmpeg';
 var ffmpeg_args = [
         '-re',
         //'-i','http://live.francetv.fr/simulcast/France_Info/hls/index.m3u8',
-        '-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=553600.m3u8',
+        //'-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=553600.m3u8',
         //'-i', 'rtmp://127.0.0.1:1935/live/latency', // srs
+        '-f', 'lavfi', '-graph', 'color=c=black [out0]', '-i', 'dummy',
         //'-codec:v','libx264',
         //'-profile:v','baseline',
         //'-level','3',
@@ -25,7 +28,7 @@ var ffmpeg_args = [
         //'-movflags', 'frag_keyframe',
         //'-flags', 'global_header',
         //'-bsf:v', 'dump_extra',
-        //'-vf', "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: text='%{localtime\\:%T}': fontcolor=white@0.8: x=7: y=7",
+        '-vf', "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: text='%{localtime\\:%T}': fontcolor=white@0.8: x=7: y=7",
         '-bufsize', '5000k',
         '-maxrate', '3000k',
         //'-fflags', 'nobuffer',
@@ -44,7 +47,7 @@ function ffmpeg() {
   // detect if ffmpeg was not spawned correctly
   ffmpeg.stderr.setEncoding('utf8');
   ffmpeg.stderr.on('data', function(data) {
-      console.log('ffmpeg::'+data);
+      log('ffmpeg: '+data);
       if(/^execvp\(\)/.test(data)) {
             console.error('failed to start ' + ffmpeg);
             process.exit(1);
