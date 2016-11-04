@@ -3,4 +3,4 @@ deploy:
 	browserify -o www/js/streamWSclient.js video-client.js
 
 run:
-	node main-server.js
+	node .

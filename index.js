@@ -21,14 +21,14 @@ if (cluster.isWorker) {
 function startWorker() {
   // XXX move me to config file
   var config = {
-    videoCodec: 'mjpeg', // can be one of 'mp4', 'mjpeg'
+    videoCodec: 'mp4', // can be one of 'mp4', 'mjpeg'
     port: 80
-  }
+  };
 
   var app = express();
 
   app.use(express.static(__dirname + '/www/'));
-  app.get('/getCodec', function (req, res) {
+  app.get('/getCodec', function(req, res) {
     switch (config.videoCodec) {
       case 'mp4':
         res.send('video/mp4; codecs="avc1.42E01F"');
@@ -41,7 +41,7 @@ function startWorker() {
         break;
 
     }
-  })
+  });
 
   httpServer = http.Server(app);
 
@@ -55,7 +55,11 @@ function startWorker() {
       videoCodec: config.videoCodec
     },
     function(err) {
-      console.error(err);
+      if (err) {
+        logger.error(err);
+        return;
+      }
+      logger.info('Server started.');
     }
   );
 }

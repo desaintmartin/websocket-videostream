@@ -4,7 +4,7 @@
   "license": "",
   "description": "",
   "scripts": {
-    "start": "beefy main-server.js"
+    "start": "beefy index.js"
   },
   "repository": {
     "type": "git",
@@ -35,6 +35,6 @@
     "browserify-buffertools": "^1.0.2"
   },
   "optionalDependencies": {},
-  "main": "main-server.js",
+  "main": "index.js",
   "author": ""
 }

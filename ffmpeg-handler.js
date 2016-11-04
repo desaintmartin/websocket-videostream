@@ -3,7 +3,7 @@ var devnull = require('dev-null');
 
 var log = require('./logger-server');
 
-var ffmpeg_bin='/usr/bin/ffmpeg';
+var ffmpeg_bin = '/usr/bin/ffmpeg';
 var ffmpeg_args_base = [
   '-re',
   //'-i','http://live.francetv.fr/simulcast/France_Info/hls/index.m3u8',
@@ -13,13 +13,13 @@ var ffmpeg_args_base = [
   '-an'
 ];
 var ffmpeg_args_mp4 = [
-  '-codec:v','libx264',
-  '-profile:v','baseline',
-  '-level','3.1',
+  '-codec:v', 'libx264',
+  '-profile:v', 'baseline',
+  '-level', '3.1',
   '-preset', 'superfast',
   '-tune', 'zerolatency',
   '-bufsize', '0',
-  '-g','1',
+  '-g', '1',
   '-reset_timestamps', '1',
   '-vsync', '1',
   '-movflags', 'frag_keyframe+empty_moov',
@@ -27,8 +27,8 @@ var ffmpeg_args_mp4 = [
   '-bsf:v', 'dump_extra'
 ];
 var ffmpeg_args_mjpeg = [
-  '-codec:v','mjpeg',
-  '-b:v','1000k',
+  '-codec:v', 'mjpeg',
+  '-b:v', '1000k',
   '-bufsize', '5000k',
   '-maxrate', '3000k'
 ];
@@ -55,21 +55,21 @@ function ffmpeg(videoCodec) {
   var ffmpeg = spawn(ffmpeg_bin, ffmpeg_args);
   ffmpeg.stderr.setEncoding('utf8');
   ffmpeg.stderr.on('data', function(data) {
-    log('ffmpeg: '+data);
-    if(/^execvp\(\)/.test(data)) {
+    log('ffmpeg: ' + data);
+    if (/^execvp\(\)/.test(data)) {
       console.error('failed to start ' + ffmpeg);
     }
   });
-  ffmpeg.on("exit", function (code) {
-    console.log("FFMPEG terminated with code " + code);
+  ffmpeg.on('exit', function(code) {
+    console.log('ffmpeg terminated with code ' + code);
   });
-  ffmpeg.on("error", function (e) {
-    console.log("FFMPEG system error: " + e);
+  ffmpeg.on('error', function(e) {
+    console.log('ffmpeg system error: ' + e);
   });
   // Pipe to /dev/null so that no buffering of pipe is done when no client is connected
   // Used for mjpeg and one global ffmpeg process
   //ffmpeg.stdout.pipe(devnull());
-  return ffmpeg
+  return ffmpeg;
 }
 
 module.exports = ffmpeg;

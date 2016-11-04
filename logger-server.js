@@ -6,4 +6,4 @@ function log(message) {
   logger.info(message);
 }
 
-module.exports = log
+module.exports = log;

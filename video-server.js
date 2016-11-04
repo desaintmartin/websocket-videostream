@@ -9,7 +9,7 @@ var videoCodec = null;
 // mp4 needs headers in beginning of file, thus
 // one globa ffmpeg process for all clients does not work.
 // Only works with mjpeg
-var ffmpeg_process = null // ffmpeg(videoCodec);
+var ffmpeg_process = null; // ffmpeg(videoCodec);
 
 module.exports.start = function(opts, callback) {
   if (server) {
@@ -25,7 +25,7 @@ module.exports.start = function(opts, callback) {
     server = opts.server;
   } else {
     server = http.createServer();
-    server.listen(80, cb)
+    server.listen(80, callback);
     opts.server = server;
   }
   opts.binary = true;
@@ -40,17 +40,17 @@ module.exports.start = function(opts, callback) {
       ffmpeg_process = null;
     });
   }
-}
+};
 
-module.exports.stop = function(cb) {
+module.exports.stop = function(callback) {
   if (!server) {
-    callback(new Error('not started'))
-    return
+    callback(new Error('not started'));
+    return;
   }
 
-  server.close(cb)
-  server = null
-}
+  server.close(callback);
+  server = null;
+};
 
 if (!module.parent) {
   module.exports.start(function(err) {
@@ -58,7 +58,7 @@ if (!module.parent) {
       console.error(err);
       return;
     }
-    console.log('Echo server started.');
+    console.log('Server started.');
   });
 }
 
