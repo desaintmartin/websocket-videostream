@@ -21,7 +21,7 @@ if (cluster.isWorker) {
 function startWorker() {
   // XXX move me to config file
   var config = {
-    videoCodec: 'mp4', // can be one of 'mp4', 'mjpeg'
+    videoCodec: 'mjpeg', // can be one of 'mp4', 'mjpeg'
     port: 80
   }
 
@@ -29,7 +29,18 @@ function startWorker() {
 
   app.use(express.static(__dirname + '/www/'));
   app.get('/getCodec', function (req, res) {
-    res.send(config.videoCodec);
+    switch (config.videoCodec) {
+      case 'mp4':
+        res.send('video/mp4; codecs="avc1.42E01F"');
+        break;
+      case 'mjpeg':
+        res.send('video/x-msvideo');
+        break;
+      default:
+        res.status(500).send('Error in configuration: video codec ' + videoCodec + ' not supported.');
+        break;
+
+    }
   })
 
   httpServer = http.Server(app);
@@ -39,7 +50,10 @@ function startWorker() {
   });
 
   videoServer.start(
-    {server: httpServer},
+    {
+      server: httpServer,
+      videoCodec: config.videoCodec
+    },
     function(err) {
       console.error(err);
     }
