@@ -1,7 +1,7 @@
 var spawn = require('child_process').spawn;
 var devnull = require('dev-null');
 
-var log = require('./logger-server');
+var log = require('./logger');
 
 var ffmpeg_bin = '/usr/bin/ffmpeg';
 var ffmpeg_args_base = [
@@ -57,14 +57,14 @@ function ffmpeg(videoCodec) {
   ffmpeg.stderr.on('data', function(data) {
     log('ffmpeg: ' + data);
     if (/^execvp\(\)/.test(data)) {
-      console.error('failed to start ' + ffmpeg);
+      log.error('failed to start ' + ffmpeg);
     }
   });
   ffmpeg.on('exit', function(code) {
-    console.log('ffmpeg terminated with code ' + code);
+    log.warn('ffmpeg terminated with code ' + code);
   });
   ffmpeg.on('error', function(e) {
-    console.log('ffmpeg system error: ' + e);
+    log.warn('ffmpeg system error: ' + e);
   });
   // Pipe to /dev/null so that no buffering of pipe is done when no client is connected
   // Used for mjpeg and one global ffmpeg process

@@ -36,7 +36,7 @@ function initializeVideo() {
   var ctxt = canvas.getContext('2d');
   var mediaSource = null;
   var sourceBuffer = null;
-  var queuei = [];
+  var queue = [];
   var mjpegDecoder = new JPEGExtractorStream();
 
   if (!('MediaSource' in window && MediaSource.isTypeSupported(mimeCodec))) {

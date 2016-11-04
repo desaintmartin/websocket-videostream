@@ -1,9 +1,9 @@
 var cluster = require('cluster');
 var express = require('express');
 var http = require('http');
-var websocket = require('./');
-var logger = require('./logger');
-var videoServer = require('./video-server.js');
+
+var logger = require('./server/logger');
+var videoServer = require('./server/video-server');
 
 
 if (cluster.isMaster) {
