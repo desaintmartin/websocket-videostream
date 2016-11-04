@@ -1,14 +1,23 @@
 var jpegExtractor = require('./jpeg-extractor.js');
 var WSStream = require('./wsstream.js');
 
-/* initialise media element */
-var video = document.getElementById('vid');
-var canvas = document.getElementById('cid');
-var ctxt = canvas.getContext("2d");
-var mediaSource = null;
-var sourceBuffer = null;
-var queue=[];
-var mimeCodec = 'video/x-msvideo';//'video/webm; codecs="vp8,vorbis"';//'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';//'video/mp4; codecs="avc1.42c01e"'
+var mimeCodec = null;
+
+var xhrPromise = new XMLHttpRequestPromise();
+xhrPromise.send({
+    method: 'GET',
+    url: '/getCodec'
+  })
+  .then(function (results) {
+    if (results.status !== 200) {
+      throw new Error('request failed');
+    }
+    mimeCodec = xhrPromise.getXHR().responseText;
+    initializeVideo();
+  })
+  .catch(function (e) {
+    console.error('XHR error');
+  });
 
 /* special websocket stream */
 var myStream = new WSStream('ws://' + location.hostname);
@@ -58,37 +67,55 @@ if (!('MediaSource' in window && MediaSource.isTypeSupported(mimeCodec))) {
     mediaSource = new MediaSource();
     video.src = window.URL.createObjectURL(mediaSource);
     video.style.display = 'block';
-    canvas.style.display = 'hidden';
+    canvas.style.display = 'none';
+    video.addEventListener('error', function(e) {
+        console.log('Media error: ' + e.target.error.code);
+    });
+    video.addEventListener('stalled', function(e) {
+        console.log('Media stalled');
+    });
     /* bind mediaSource buffer to websocket stream data */
     mediaSource.addEventListener('sourceopen', function(){
+        sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
 
-            sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
-
-            sourceBuffer.addEventListener('updateend', function() {
-                if ( queue.length ) {
-                    sourceBuffer.appendBuffer(queue.shift());
-                }
-            }, false);
-
-            sourceBuffer.addEventListener('remove', function() {
-                console.error("source buffer remove");
-            }, false);
-
-            myStream.ondata = function(_d) {
-                 //var d=new Uint8Array(_d);
-                 var d=_d;
-                 if (!sourceBuffer.updating && sourceBuffer.buffered.length > 0) {
-                    console.debug("buffer not updating");
-                    sourceBuffer.appendBuffer(d);// new Uint8Array(d);
-                 } else {
-                    if(!sourceBuffer.updating) sourceBuffer.appendBuffer(d);
-                    else queue.push(d);
-                 }
-                if (video.paused) {
-                    video.play();
-                }
+        sourceBuffer.addEventListener('updateend', function() {
+            if ( queue.length ) {
+                sourceBuffer.appendBuffer(queue.shift());
             }
-            myStream.init();
+        }, false);
+
+        sourceBuffer.addEventListener('remove', function() {
+            console.error("source buffer remove");
+        }, false);
+
+        myStream.ondata = function(_d) {
+             //var d=new Uint8Array(_d);
+             var d=_d;
+             if (!sourceBuffer.updating && sourceBuffer.buffered.length > 0) {
+                console.debug("buffer not updating");
+                sourceBuffer.appendBuffer(d);// new Uint8Array(d);
+             } else {
+                if(!sourceBuffer.updating) sourceBuffer.appendBuffer(d);
+                else queue.push(d);
+             }
+            if (video.paused) {
+                video.play();
+            }
+        }
+        myStream.init();
+    });
+    mediaSource.addEventListener('sourceended', function(e){
+      mediaSource.removeSourceBuffer(sourceBuffer);
+      myStream.ondata = null;
+    });
+    mediaSource.addEventListener('sourceclose', function(e){
+        console.log('mediaSource sourceclose');
+    });
+    mediaSource.addEventListener('error', function(e){
+        console.log('mediaSource error');
+    });
+    mediaSource.addEventListener('abort', function(e){
+        console.log('mediaSource abort');
     });
 }
 

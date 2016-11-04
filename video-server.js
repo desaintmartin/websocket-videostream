@@ -11,36 +11,39 @@ var ffmpeg_bin='/usr/bin/ffmpeg';
 var ffmpeg_args = [
         '-re',
         //'-i','http://live.francetv.fr/simulcast/France_Info/hls/index.m3u8',
-        //'-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=553600.m3u8',
+        '-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=815200.m3u8',
         //'-i', 'rtmp://127.0.0.1:1935/live/latency', // srs
-        '-f', 'lavfi', '-graph', 'color=c=black [out0]', '-i', 'dummy',
-        //'-codec:v','libx264',
-        //'-profile:v','baseline',
-        //'-level','3',
-        //'-codec:v','libvpx',
-        //'-g','1',
+        //'-f', 'lavfi', '-graph', 'color=c=black [out0]', '-i', 'dummy',
         '-an',
-        '-codec:v','mjpeg', // don't know why I can't make it work again with webm or mp4... most probably an issue with initialisation segment...
-        '-b:v','1000k',
-        //'-vcodec', 'copy',
-        //'-reset_timestamps', '1',
-        //'-vsync', '1',
-        //'-movflags', 'frag_keyframe',
-        //'-flags', 'global_header',
-        //'-bsf:v', 'dump_extra',
+        '-codec:v','libx264',
+        '-profile:v','baseline',
+        '-level','3.1',
+        '-preset', 'superfast',
+        '-tune', 'zerolatency',
+        '-bufsize', '0',
+        '-g','1',
+        '-reset_timestamps', '1',
+        '-vsync', '1',
+        '-movflags', 'frag_keyframe+empty_moov',
+        '-flags', 'global_header',
+        '-bsf:v', 'dump_extra',
+        //'-codec:v','mjpeg',
+        //'-b:v','1000k',
+        //'-bufsize', '5000k',
+        //'-maxrate', '3000k',
         '-vf', "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: text='%{localtime\\:%T}': fontcolor=white@0.8: x=7: y=7",
-        '-bufsize', '5000k',
-        '-maxrate', '3000k',
-        //'-fflags', 'nobuffer',
         '-avioflags', 'direct',
         '-flush_packets', '1',
-        //'-f', 'mp4',
+        //'-f', 'avi',
+        '-f', 'mp4',
         '-y',
-        '-f', 'avi',
-        '-'              // Output on stdout, https://www.ffmpeg.org/ffmpeg-protocols.html#toc-pipe
+        '-' // Output on stdout, https://www.ffmpeg.org/ffmpeg-protocols.html#toc-pipe
   ];
 
-//var mp4Headers = [];
+// mp4 needs headers in beginning of file, thus
+// one globa ffmpeg process for all clients does not work.
+// Only works with mjpeg
+var ffmpeg_process = null // ffmpeg();
 
 function ffmpeg() {
   var ffmpeg = spawn(ffmpeg_bin, ffmpeg_args);
@@ -50,38 +53,24 @@ function ffmpeg() {
       log('ffmpeg: '+data);
       if(/^execvp\(\)/.test(data)) {
             console.error('failed to start ' + ffmpeg);
-            process.exit(1);
       }
   });
-  //ffmpeg.stdout.on('data', function(data) {
-  //    if (mp4Headers.length < 3) {
-  //          mp4Headers.push(data);
-  //    }
-  //});
   ffmpeg.on("exit", function (code) {
       console.log("FFMPEG terminated with code " + code);
-      process.exit(1);
   });
   ffmpeg.on("error", function (e) {
       console.log("FFMPEG system error: " + e);
-      process.exit(1);
   });
   // Pipe to /dev/null so that no buffering of pipe is done when no client is connected
-  ffmpeg.stdout.pipe(devnull());
+  // Used for mjpeg and one global ffmpeg process
+  //ffmpeg.stdout.pipe(devnull());
   return ffmpeg
 }
 
-module.exports.start = function(opts, cb) {
+module.exports.start = function(opts, callback) {
   if (server) {
-    cb(new Error('already started'));
+    callback(new Error('already started'));
     return;
-  }
-
-  ffmpeg_process = ffmpeg();
-
-  if (typeof opts == 'function') {
-    cb = opts;
-    opts = {};
   }
 
   if (opts.server) {
@@ -96,17 +85,18 @@ module.exports.start = function(opts, cb) {
   websocket.createServer(opts, video);
 
   function video(stream) {
-    // Re-send buffered mp4 packets
-    //for (var i = 0; i < mp4Headers.length; i++) {
-    //  stream.write(mp4Headers[i]);
-    //}
+    ffmpeg_process = ffmpeg();
     ffmpeg_process.stdout.pipe(stream);
+    stream.on('finish', function() {
+      ffmpeg_process.kill();
+      ffmpeg_process = null;
+    });
   }
 }
 
 module.exports.stop = function(cb) {
   if (!server) {
-    cb(new Error('not started'))
+    callback(new Error('not started'))
     return
   }
 
@@ -120,7 +110,7 @@ if (!module.parent) {
       console.error(err);
       return;
     }
-    console.log('Echo server started on port ' + port);
+    console.log('Echo server started.');
   });
 }
 
