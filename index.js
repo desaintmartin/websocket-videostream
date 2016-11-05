@@ -1,6 +1,7 @@
 var cluster = require('cluster');
 var express = require('express');
 var http = require('http');
+var nocache = require('nocache')
 
 var logger = require('./server/logger');
 var videoServer = require('./server/video-server');
@@ -28,10 +29,11 @@ function startWorker() {
   var app = express();
 
   app.use(express.static(__dirname + '/www/'));
+  app.use(nocache())
   app.get('/getCodec', function(req, res) {
     switch (config.videoCodec) {
       case 'mp4':
-        res.send('video/mp4; codecs="avc1.42E01F"');
+        res.send('video/mp4; codecs="avc1.640029"'); //avc1.42E01F"');
         break;
       case 'mjpeg':
         res.send('video/x-msvideo');

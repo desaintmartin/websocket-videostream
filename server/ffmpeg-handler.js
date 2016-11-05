@@ -15,8 +15,8 @@ var ffmpegArgsBase = [
 ];
 var ffmpegArgsMp4 = [
   '-codec:v', 'libx264',
-  '-profile:v', 'baseline',
-  '-level', '3.1',
+  '-profile:v', 'high',
+  '-level', '4.1',
   '-preset', 'superfast',
   '-tune', 'zerolatency',
   '-bufsize', '0',

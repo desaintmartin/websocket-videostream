@@ -26,10 +26,10 @@ xhrPromise.send({
 function initializeVideo() {
   websocketVideoStream = new WSStream('ws://' + location.hostname);
   if (!('MediaSource' in window && MediaSource.isTypeSupported(mimeCodec))) {
-    console.log('MediaElement does not support ' + mimeCodec + ' Video codec, falling back to jpeg decoding.');
+    console.log('Browser does not support ' + mimeCodec + ' Video codec, falling back to jpeg decoding.');
     decodeAndPlayMjpeg();
   } else {
-    console.log('MediaElement supports ' + mimeCodec + ' video codec.');
+    console.log('Browser supports ' + mimeCodec + ' video codec.');
     decodeAndPlayMp4();
   }
   websocketVideoStream.init();

@@ -25,6 +25,7 @@
     "colors": "^1.1.2",
     "dev-null": "^0.1.1",
     "express": "^4.14.0",
+    "nocache": "^2.0.0",
     "simple-node-logger": "^0.93.12",
     "websocket-stream": "^3.3.0",
     "xhr-promise": "^2.0.0"
