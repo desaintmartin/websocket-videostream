@@ -4,12 +4,12 @@ var websocket = require('websocket-stream');
 var ffmpeg = require('./ffmpeg-handler');
 
 var server = null;
-var videoCodec = null;
+var videoType = null;
 
 // mp4 needs headers in beginning of file, thus
 // one globa ffmpeg process for all clients does not work.
 // Only works with mjpeg
-var ffmpeg_process = null; // ffmpeg(videoCodec);
+var ffmpeg_process = null; // ffmpeg(videoType);
 
 module.exports.start = function(opts, callback) {
   if (server) {
@@ -17,8 +17,8 @@ module.exports.start = function(opts, callback) {
     return;
   }
 
-  if (opts.videoCodec) {
-    videoCodec = opts.videoCodec;
+  if (opts.videoType) {
+    videoType = opts.videoType;
   }
 
   if (opts.server) {
@@ -33,7 +33,7 @@ module.exports.start = function(opts, callback) {
   websocket.createServer(opts, video);
 
   function video(stream) {
-    ffmpeg_process = ffmpeg(videoCodec);
+    ffmpeg_process = ffmpeg(videoType);
     ffmpeg_process.stdout.pipe(stream);
     stream.on('finish', function() {
       ffmpeg_process.kill();

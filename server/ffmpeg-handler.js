@@ -56,13 +56,13 @@ var ffmpegArgsTrail = [
 
 var ffmpegGlobalProcess = null; // XXX TODO implement me
 
-function ffmpeg(videoCodec) {
-  if (!videoCodec) {
-    videoCodec = 'mjpeg';
+function ffmpeg(videoType) {
+  if (!videoType) {
+    videoType = 'mjpeg';
   }
 
   var ffmpeg_args = null;
-  switch (videoCodec) {
+  switch (videoType) {
     case 'mp4':
       ffmpeg_args = ffmpegArgsBase.concat(ffmpegArgsMp4, ffmpegArgsTrail, ['-f', 'mp4', '-y', '-']);
       break;
@@ -73,7 +73,7 @@ function ffmpeg(videoCodec) {
       ffmpeg_args = ffmpegArgsBase.concat(ffmpegArgsWebM, ffmpegArgsTrail, ['-f', 'webm', '-y', '-']);
       break;
     default:
-      throw new Error('video codec ' + videoCodec + ' is not supported.');
+      throw new Error('video type ' + videoType + ' is not supported.');
       break;
   }
 

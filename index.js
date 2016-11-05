@@ -1,11 +1,17 @@
-var cluster = require('cluster');
-var express = require('express');
-var http = require('http');
-var nocache = require('nocache')
+const cluster = require('cluster');
+const express = require('express');
+const http = require('http');
+const nocache = require('nocache')
+const commandLineArgs = require('command-line-args')
 
-var logger = require('./server/logger');
-var videoServer = require('./server/video-server');
+const logger = require('./server/logger');
+const videoServer = require('./server/video-server');
 
+const optionDefinitions = [
+  { name: 'type', alias: 't', type: String, defaultValue: 'mjpeg' },
+  { name: 'port', alias: 'p', type: Number, defaultValue: 80 },
+]
+const options = commandLineArgs(optionDefinitions)
 
 if (cluster.isMaster) {
   cluster.fork();
@@ -20,18 +26,11 @@ if (cluster.isWorker) {
 }
 
 function startWorker() {
-  // XXX move me to config file
-  var config = {
-    videoCodec: 'mp4', // can be one of 'mp4', 'mjpeg', 'webm'
-    port: 80
-  };
-
   var app = express();
-
   app.use(express.static(__dirname + '/www/'));
   app.use(nocache())
   app.get('/getCodec', function(req, res) {
-    switch (config.videoCodec) {
+    switch (options.type) {
       case 'mp4':
         res.send('video/mp4; codecs="avc1.640029"'); //avc1.42E01F"');
         break;
@@ -42,21 +41,21 @@ function startWorker() {
         res.send('video/webm; codecs="vp9"');
         break;
       default:
-        res.status(500).send('Error in configuration: video codec ' + videoCodec + ' not supported.');
+        res.status(500).send('Error in configuration: video codec ' + videoType + ' not supported.');
         break;
     }
   });
 
   httpServer = http.Server(app);
 
-  httpServer.listen(config.port, function() {
-    logger.info('listening on *:' + config.port);
+  httpServer.listen(options.port, function() {
+    logger.info('listening on *:' + options.port);
   });
 
   videoServer.start(
     {
       server: httpServer,
-      videoCodec: config.videoCodec
+      videoType: options.type
     },
     function(err) {
       if (err) {
@@ -67,3 +66,4 @@ function startWorker() {
     }
   );
 }
+
