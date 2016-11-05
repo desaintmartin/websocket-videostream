@@ -1,14 +1,19 @@
-websocket-videostream
-=====================
+# websocket-videostream
 
 Allows to stream output of ffmpeg process to browser using websocket and MJPEG.
 
+### Installation
 
-Install and run
----------------
+Dillinger requires [Node.js](https://nodejs.org/) v7+ to run.
 
-Requires node.js and browserify (npm install -g browserify).
+Install the dependencies and devDependencies and start the server.
 
-$ make deploy
-$ make run
+```sh
+$ npm install -d
+$ gulp
+$ node . --type $type
+```
+
+`$type` can be : mjpeg, mp4 (firefox only), webm (buggy).
+
 
