@@ -7,8 +7,8 @@ var ffmpegBin = '/usr/bin/ffmpeg';
 var ffmpegArgsBase = [
   '-re',
   //'-i','http://live.francetv.fr/simulcast/France_Info/hls/index.m3u8',
-  //'-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=815200.m3u8',
-  '-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=1465200.m3u8',
+  '-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=815200.m3u8',
+  //'-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=1465200.m3u8',
   //'-i', 'rtmp://127.0.0.1:1935/live/latency', // srs
   //'-f', 'lavfi', '-graph', 'color=c=black [out0]', '-i', 'dummy',
   '-an'
@@ -20,20 +20,38 @@ var ffmpegArgsMp4 = [
   '-preset', 'superfast',
   '-tune', 'zerolatency',
   '-bufsize', '0',
+  '-keyint_min', '5',
   '-g', '5',
   '-movflags', 'frag_keyframe+empty_moov',
-  '-flags', '+global_header', '-bsf:v', 'dump_extra'
+  '-flags', '+global_header', '-bsf:v', 'dump_extra',
+];
+var ffmpegArgsWebM = [
+  '-codec:v', 'libvpx-vp9',
+  '-pass', '0',
+  '-cpu-used', '16',
+  '-speed', '16',
+  '-deadline', 'realtime',
+  '-quality', 'realtime',
+  '-static-thresh', '0',
+  '-max-intra-rate', '300',
+  '-lag-in-frames', '0',
+  '-error-resilient', '1',
+  '-b:v', '5M',
+  '-tile-columns', '6', '-frame-parallel', '1', '-threads', '4',
+  '-bufsize', '0',
+  '-keyint_min', '15',
+  '-g', '15',
 ];
 var ffmpegArgsMjpeg = [
   '-codec:v', 'mjpeg',
   '-b:v', '2000k',
   '-bufsize', '1000k',
-  '-maxrate', '5000k'
+  '-maxrate', '5000k',
 ];
 var ffmpegArgsTrail = [
   '-vf', "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: text='%{localtime\\:%T}': fontcolor=white@0.8: x=7: y=7",
   '-avioflags', 'direct',
-  '-flush_packets', '1'
+  '-flush_packets', '1',
 ];
 
 var ffmpegGlobalProcess = null; // XXX TODO implement me
@@ -44,12 +62,19 @@ function ffmpeg(videoCodec) {
   }
 
   var ffmpeg_args = null;
-  if (videoCodec === 'mjpeg') {
-    ffmpeg_args = ffmpegArgsBase.concat(ffmpegArgsMjpeg, ffmpegArgsTrail, ['-f', 'avi', '-y', '-']);
-  } else if (videoCodec === 'mp4') {
-    ffmpeg_args = ffmpegArgsBase.concat(ffmpegArgsMp4, ffmpegArgsTrail, ['-f', 'mp4', '-y', '-']);
-  } else {
-    throw new Error('video codec ' + videoCodec + ' is not supported.');
+  switch (videoCodec) {
+    case 'mp4':
+      ffmpeg_args = ffmpegArgsBase.concat(ffmpegArgsMp4, ffmpegArgsTrail, ['-f', 'mp4', '-y', '-']);
+      break;
+    case 'mjpeg':
+      ffmpeg_args = ffmpegArgsBase.concat(ffmpegArgsMjpeg, ffmpegArgsTrail, ['-f', 'avi', '-y', '-']);
+      break;
+    case 'webm':
+      ffmpeg_args = ffmpegArgsBase.concat(ffmpegArgsWebM, ffmpegArgsTrail, ['-f', 'webm', '-y', '-']);
+      break;
+    default:
+      throw new Error('video codec ' + videoCodec + ' is not supported.');
+      break;
   }
 
   var ffmpeg = spawn(ffmpegBin, ffmpeg_args);

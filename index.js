@@ -21,7 +21,7 @@ if (cluster.isWorker) {
 function startWorker() {
   // XXX move me to config file
   var config = {
-    videoCodec: 'mp4', // can be one of 'mp4', 'mjpeg'
+    videoCodec: 'mp4', // can be one of 'mp4', 'mjpeg', 'webm'
     port: 80
   };
 
@@ -36,10 +36,12 @@ function startWorker() {
       case 'mjpeg':
         res.send('video/x-msvideo');
         break;
+      case 'webm':
+        res.send('video/webm; codecs="vp9"');
+        break;
       default:
         res.status(500).send('Error in configuration: video codec ' + videoCodec + ' not supported.');
         break;
-
     }
   });
 

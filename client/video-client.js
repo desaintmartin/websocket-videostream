@@ -70,22 +70,40 @@ function decodeAndPlayMjpeg() {
 }
 
 function decodeAndPlayMp4() {
+  // XXX MSE does not allow to know the latest available playback time.
+  // It means that if video has some delay (due to temporary CPU high usage?), we can't
+  // go ahead to the latest frame.
   var video = document.getElementById('vid');
   var canvas = document.getElementById('cid');
   var mediaSource = new MediaSource();
   var sourceBuffer = null;
   var queue = [];
 
-  setInterval(function() {
-    // Hack to go to latest available frame if stalled because of CPU usage
-      video.currentTime = 1000000;
-  }, 10 * 1000);
-
   video.src = window.URL.createObjectURL(mediaSource);
   video.style.display = 'block';
   canvas.style.display = 'none';
   video.addEventListener('error', function(e) {
-    console.log('Media error: ' + e.target.error.code);
+    switch (e.target.error.code) {
+      case 0:
+        msg = 'MEDIA_ERR_ABORTED';
+        break;
+      case 2:
+        msg = 'MEDIA_ERR_NETWORK';
+        break;
+      case 3:
+        msg = 'MEDIA_ERR_DECODE';
+        break;
+      case 4:
+        msg = 'MEDIA_ERR_SRC_NOT_SUPPORTED';
+        break;
+      case 5:
+        msg = 'MEDIA_ERR_ENCRYPTED';
+        break;
+      default:
+        msg = 'UNKNOWN';
+        break;
+    }
+    console.error('Media error: ' + msg);
   });
   video.addEventListener('stalled', function(e) {
     console.log('Media stalled');
