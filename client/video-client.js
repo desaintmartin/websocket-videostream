@@ -19,7 +19,7 @@ xhrPromise.send({
     initializeVideo();
   })
   .catch(function(e) {
-    console.error(e)
+    console.error(e);
   });
 
 
@@ -42,7 +42,7 @@ function decodeAndPlayWithCanvas() {
   mjpegDecoder.on('image', function(imgData) {
     var img = null;
     try {
-      img = new Image;
+      img = new Image();
     } catch (e) {
       //console.log
     }

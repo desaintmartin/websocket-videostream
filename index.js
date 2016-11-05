@@ -1,8 +1,8 @@
 const cluster = require('cluster');
 const express = require('express');
 const http = require('http');
-const nocache = require('nocache')
-const commandLineArgs = require('command-line-args')
+const nocache = require('nocache');
+const commandLineArgs = require('command-line-args');
 
 const logger = require('./server/logger');
 const videoServer = require('./server/video-server');
@@ -10,8 +10,8 @@ const videoServer = require('./server/video-server');
 const optionDefinitions = [
   { name: 'type', alias: 't', type: String, defaultValue: 'mjpeg' },
   { name: 'port', alias: 'p', type: Number, defaultValue: 80 },
-]
-const options = commandLineArgs(optionDefinitions)
+];
+const options = commandLineArgs(optionDefinitions);
 
 if (cluster.isMaster) {
   cluster.fork();
@@ -28,7 +28,7 @@ if (cluster.isWorker) {
 function startWorker() {
   var app = express();
   app.use(express.static(__dirname + '/www/'));
-  app.use(nocache())
+  app.use(nocache());
   app.get('/getCodec', function(req, res) {
     switch (options.type) {
       case 'mp4':

@@ -74,27 +74,26 @@ function ffmpeg(videoType) {
       break;
     default:
       throw new Error('video type ' + videoType + ' is not supported.');
-      break;
   }
 
-  var ffmpeg = spawn(ffmpegBin, ffmpeg_args);
-  ffmpeg.stderr.setEncoding('utf8');
-  ffmpeg.stderr.on('data', function(data) {
+  var ffmpeg_process = spawn(ffmpegBin, ffmpeg_args);
+  ffmpeg_process.stderr.setEncoding('utf8');
+  ffmpeg_process.stderr.on('data', function(data) {
     log('ffmpeg: ' + data);
     if (/^execvp\(\)/.test(data)) {
-      log.error('failed to start ' + ffmpeg);
+      log.error('failed to start ' + ffmpeg_process);
     }
   });
-  ffmpeg.on('exit', function(code) {
+  ffmpeg_process.on('exit', function(code) {
     log.warn('ffmpeg terminated with code ' + code);
   });
-  ffmpeg.on('error', function(e) {
+  ffmpeg_process.on('error', function(e) {
     log.warn('ffmpeg system error: ' + e);
   });
   // Pipe to /dev/null so that no buffering of pipe is done when no client is connected
   // Used for mjpeg and one global ffmpeg process
-  //ffmpeg.stdout.pipe(devnull());
-  return ffmpeg;
+  //ffmpeg_process.stdout.pipe(devnull());
+  return ffmpeg_process;
 }
 
 module.exports = ffmpeg;

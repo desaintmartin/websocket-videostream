@@ -24,17 +24,17 @@ function log(message, level) {
     }
     logger.info(message.grey);
   }
-};
+}
 
 log.info = function(message) {
   log(message, 'info');
-}
+};
 log.warn = function(message) {
   log(message, 'warn');
-}
+};
 log.error = function(message) {
   log(message, 'error');
-}
+};
 
 module.exports = log;
 
