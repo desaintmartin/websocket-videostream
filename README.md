@@ -14,6 +14,7 @@ $ gulp
 $ node . --type $type
 ```
 
-`$type` can be : mjpeg, mp4 (firefox only), webm (buggy).
+`$type` can be : mjpeg, mp4 (not supported on some mobile platformes),
+webm (experimental and buggy).
 
 

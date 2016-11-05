@@ -22,7 +22,7 @@ var ffmpegArgsMp4 = [
   '-bufsize', '0',
   '-keyint_min', '5',
   '-g', '5',
-  '-movflags', 'frag_keyframe+empty_moov',
+  '-movflags', 'frag_keyframe+empty_moov+default_base_moof+omit_tfhd_offset',
   '-flags', '+global_header', '-bsf:v', 'dump_extra',
 ];
 var ffmpegArgsWebM = [
