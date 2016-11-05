@@ -3,8 +3,8 @@ var devnull = require('dev-null');
 
 var log = require('./logger');
 
-var ffmpeg_bin = '/usr/bin/ffmpeg';
-var ffmpeg_args_base = [
+var ffmpegBin = '/usr/bin/ffmpeg';
+var ffmpegArgsBase = [
   '-re',
   //'-i','http://live.francetv.fr/simulcast/France_Info/hls/index.m3u8',
   '-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=815200.m3u8',
@@ -12,31 +12,30 @@ var ffmpeg_args_base = [
   //'-f', 'lavfi', '-graph', 'color=c=black [out0]', '-i', 'dummy',
   '-an'
 ];
-var ffmpeg_args_mp4 = [
+var ffmpegArgsMp4 = [
   '-codec:v', 'libx264',
   '-profile:v', 'baseline',
   '-level', '3.1',
   '-preset', 'superfast',
   '-tune', 'zerolatency',
   '-bufsize', '0',
-  '-g', '1',
-  '-reset_timestamps', '1',
-  '-vsync', '1',
+  '-g', '5',
   '-movflags', 'frag_keyframe+empty_moov',
-  '-flags', 'global_header',
-  '-bsf:v', 'dump_extra'
+  '-flags', '+global_header', '-bsf:v', 'dump_extra'
 ];
-var ffmpeg_args_mjpeg = [
+var ffmpegArgsMjpeg = [
   '-codec:v', 'mjpeg',
-  '-b:v', '1000k',
-  '-bufsize', '5000k',
-  '-maxrate', '3000k'
+  '-b:v', '2000k',
+  '-bufsize', '1000k',
+  '-maxrate', '5000k'
 ];
-var ffmpeg_args_trail = [
+var ffmpegArgsTrail = [
   '-vf', "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: text='%{localtime\\:%T}': fontcolor=white@0.8: x=7: y=7",
   '-avioflags', 'direct',
   '-flush_packets', '1'
 ];
+
+var ffmpegGlobalProcess = null;
 
 function ffmpeg(videoCodec) {
   if (!videoCodec) {
@@ -45,14 +44,14 @@ function ffmpeg(videoCodec) {
 
   var ffmpeg_args = null;
   if (videoCodec === 'mjpeg') {
-    ffmpeg_args = ffmpeg_args_base.concat(ffmpeg_args_mjpeg, ffmpeg_args_trail, ['-f', 'avi', '-y', '-']);
+    ffmpeg_args = ffmpegArgsBase.concat(ffmpegArgsMjpeg, ffmpegArgsTrail, ['-f', 'avi', '-y', '-']);
   } else if (videoCodec === 'mp4') {
-    ffmpeg_args = ffmpeg_args_base.concat(ffmpeg_args_mp4, ffmpeg_args_trail, ['-f', 'mp4', '-y', '-']);
+    ffmpeg_args = ffmpegArgsBase.concat(ffmpegArgsMp4, ffmpegArgsTrail, ['-f', 'mp4', '-y', '-']);
   } else {
     throw new Error('video codec ' + videoCodec + ' is not supported.');
   }
 
-  var ffmpeg = spawn(ffmpeg_bin, ffmpeg_args);
+  var ffmpeg = spawn(ffmpegBin, ffmpeg_args);
   ffmpeg.stderr.setEncoding('utf8');
   ffmpeg.stderr.on('data', function(data) {
     log('ffmpeg: ' + data);
