@@ -60,8 +60,10 @@ module.exports = function(wsurl) {
                 self.onerror(event, self.wsurl);
         };
 
-        this.onclose = function() {
-          setTimeout(function() {window.location.reload();}, 2000);
+        this.onclose = this.onerror = function() {
+          setTimeout(function() {
+            window.location.reload();
+          }, 2000);
         };
     };
 };

@@ -7,7 +7,8 @@ var ffmpegBin = '/usr/bin/ffmpeg';
 var ffmpegArgsBase = [
   '-re',
   //'-i','http://live.francetv.fr/simulcast/France_Info/hls/index.m3u8',
-  '-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=815200.m3u8',
+  //'-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=815200.m3u8',
+  '-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=1465200.m3u8',
   //'-i', 'rtmp://127.0.0.1:1935/live/latency', // srs
   //'-f', 'lavfi', '-graph', 'color=c=black [out0]', '-i', 'dummy',
   '-an'
@@ -35,7 +36,7 @@ var ffmpegArgsTrail = [
   '-flush_packets', '1'
 ];
 
-var ffmpegGlobalProcess = null;
+var ffmpegGlobalProcess = null; // XXX TODO implement me
 
 function ffmpeg(videoCodec) {
   if (!videoCodec) {

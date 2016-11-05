@@ -19,5 +19,4 @@ function goFullScreenAndForget() {
 
 window.onload = function() {
   document.body.addEventListener('touchstart', goFullScreenAndForget, false);
-  document.body.addEventListener('click', goFullScreenAndForget, false);
 }

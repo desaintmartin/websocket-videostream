@@ -4,8 +4,9 @@ var jpegExtractor = require('./jpeg-extractor.js');
 var WSStream = require('./wsstream.js');
 
 var mimeCodec = null;
-
 var xhrPromise = new XMLHttpRequestPromise();
+var websocketVideoStream = null;
+
 xhrPromise.send({
     method: 'GET',
     url: '/getCodec'
@@ -21,15 +22,9 @@ xhrPromise.send({
     console.error(e)
   });
 
-var websocketVideoStream = new WSStream('ws://' + location.hostname);
-websocketVideoStream.onclose = websocketVideoStream.onerror = function() {
-  // Reload the page on server-side error (it should not be closed)
-  setTimeout(function() {
-    window.location.reload();
-  }, 2000);
-};
 
 function initializeVideo() {
+  websocketVideoStream = new WSStream('ws://' + location.hostname);
   if (!('MediaSource' in window && MediaSource.isTypeSupported(mimeCodec))) {
     console.log('MediaElement does not support ' + mimeCodec + ' Video codec, falling back to jpeg decoding.');
     decodeAndPlayMjpeg();
@@ -37,6 +32,7 @@ function initializeVideo() {
     console.log('MediaElement supports ' + mimeCodec + ' video codec.');
     decodeAndPlayMp4();
   }
+  websocketVideoStream.init();
 }
 
 function decodeAndPlayMjpeg() {
@@ -71,17 +67,20 @@ function decodeAndPlayMjpeg() {
   websocketVideoStream.ondata = function(_d) {
     mjpegDecoder.write(_d);
   };
-  websocketVideoStream.init();
 }
 
 function decodeAndPlayMp4() {
   var video = document.getElementById('vid');
   var canvas = document.getElementById('cid');
-  var mediaSource = null;
+  var mediaSource = new MediaSource();
   var sourceBuffer = null;
   var queue = [];
 
-  mediaSource = new MediaSource();
+  setInterval(function() {
+    // Hack to go to latest available frame if stalled because of CPU usage
+      video.currentTime = 1000000;
+  }, 10 * 1000);
+
   video.src = window.URL.createObjectURL(mediaSource);
   video.style.display = 'block';
   canvas.style.display = 'none';
@@ -91,46 +90,35 @@ function decodeAndPlayMp4() {
   video.addEventListener('stalled', function(e) {
     console.log('Media stalled');
   });
-  /* bind mediaSource buffer to websocket stream data */
+  window.mediaSource = mediaSource; // XXX remove me
+
   mediaSource.addEventListener('sourceopen', function() {
     sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
-
     sourceBuffer.addEventListener('updateend', function() {
-      if (queue.length) {
+      if (!queue.length || sourceBuffer.updating) {
+        return;
+      }
+      try {
         sourceBuffer.appendBuffer(queue.shift());
+      } catch (e) {
+        console.error(e);
       }
     }, false);
 
-    sourceBuffer.addEventListener('remove', function() {
-      console.error('source buffer remove');
-    }, false);
+    websocketVideoStream.ondata = function(d) {
+      if (queue.length) {
+        queue.push(d);
+        return;
+      }
+      if (sourceBuffer.updating) {
+        queue.push(d);
+        return;
+      }
+      sourceBuffer.appendBuffer(d);
 
-    websocketVideoStream.ondata = function(_d) {
-       //var d=new Uint8Array(_d);
-       var d = _d;
-       if (!sourceBuffer.updating && sourceBuffer.buffered.length > 0) {
-         sourceBuffer.appendBuffer(d);// new Uint8Array(d);
-       } else {
-         if (!sourceBuffer.updating) sourceBuffer.appendBuffer(d);
-         else queue.push(d);
-       }
       if (video.paused) {
-         video.play();
+        video.play();
       }
     };
-    websocketVideoStream.init();
-  });
-  mediaSource.addEventListener('sourceended', function(e) {
-    mediaSource.removeSourceBuffer(sourceBuffer);
-    websocketVideoStream.ondata = null;
-  });
-  mediaSource.addEventListener('sourceclose', function(e) {
-      console.log('mediaSource sourceclose');
-  });
-  mediaSource.addEventListener('error', function(e) {
-      console.log('mediaSource error');
-  });
-  mediaSource.addEventListener('abort', function(e) {
-      console.log('mediaSource abort');
   });
 }
