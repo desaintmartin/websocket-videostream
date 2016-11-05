@@ -1,6 +1,6 @@
-www/js/jpeg-extractor.js
-www/js/streamWSclient.js
+www/js/dist/video-client.js
 node_modules
 .*
+!.jshintrc
 !.gitignore
 

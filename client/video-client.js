@@ -27,15 +27,15 @@ function initializeVideo() {
   websocketVideoStream = new WSStream('ws://' + location.hostname);
   if (!('MediaSource' in window && MediaSource.isTypeSupported(mimeCodec))) {
     console.log('Browser does not support ' + mimeCodec + ' Video codec, falling back to jpeg decoding.');
-    decodeAndPlayMjpeg();
+    decodeAndPlayWithCanvas();
   } else {
     console.log('Browser supports ' + mimeCodec + ' video codec.');
-    decodeAndPlayMp4();
+    decodeAndPlayWithVideo();
   }
   websocketVideoStream.init();
 }
 
-function decodeAndPlayMjpeg() {
+function decodeAndPlayWithCanvas() {
   var mjpegDecoder = new JPEGExtractorStream();
   var canvas = document.getElementById('cid');
   var ctxt = canvas.getContext('2d');
@@ -69,7 +69,7 @@ function decodeAndPlayMjpeg() {
   };
 }
 
-function decodeAndPlayMp4() {
+function decodeAndPlayWithVideo() {
   // XXX MSE does not allow to know the latest available playback time.
   // It means that if video has some delay (due to temporary CPU high usage?), we can't
   // go ahead to the latest frame.
