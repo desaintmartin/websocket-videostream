@@ -21,8 +21,10 @@ gulp.task('generate-client', function() {
 
 gulp.task('js-lint', function() {
     return gulp.src([
-        '*.js',
-        './*/*.js'
+        '**/*.js',
+        'client/**/*.js',
+        'server/**/*.js',
+        'www/**/*.js',
     ])
     .pipe(jshint())
     .pipe(jshint.reporter('default'));
@@ -30,7 +32,7 @@ gulp.task('js-lint', function() {
 
 gulp.task('default', function(callback) {
     sequence(
-        'install', 'js-lint', 'generate-client',
+        'js-lint', 'generate-client',
         callback
     );
 });

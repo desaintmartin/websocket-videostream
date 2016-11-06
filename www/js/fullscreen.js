@@ -12,8 +12,8 @@ function toggleFullScreenAndPlay() {
 function goFullScreenAndPlayAndForget() {
   window.document.body.removeEventListener('touchstart', goFullScreenAndPlayAndForget);
   toggleFullScreenAndPlay(window.document.documentElement);
-};
+}
 
 window.onload = function() {
   document.body.addEventListener('touchstart', goFullScreenAndPlayAndForget, false);
-}
+};
