@@ -20,9 +20,11 @@ var ffmpegArgsMp4 = [
   '-preset', 'superfast',
   '-tune', 'zerolatency',
   '-bufsize', '0',
+  '-reset_timestamps', '1',
   '-keyint_min', '5',
   '-g', '5',
   '-movflags', 'frag_keyframe+empty_moov+default_base_moof+omit_tfhd_offset+isml',
+  '-bsf:v', 'dump_extra',
   '-flags', '+global_header', '-bsf:v', 'dump_extra',
 ];
 var ffmpegArgsWebM = [
