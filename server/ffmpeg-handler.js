@@ -1,7 +1,6 @@
-var spawn = require('child_process').spawn;
-var devnull = require('dev-null');
-
-var log = require('./logger');
+const spawn = require('child_process').spawn;
+const devnull = require('dev-null');
+const log = require('./logger');
 
 var ffmpegBin = '/usr/bin/ffmpeg';
 var ffmpegArgsBase = [
@@ -61,39 +60,41 @@ function ffmpeg(videoType) {
     videoType = 'mjpeg';
   }
 
-  var ffmpeg_args = null;
+  var ffmpegArgs = null;
   switch (videoType) {
     case 'mp4':
-      ffmpeg_args = ffmpegArgsBase.concat(ffmpegArgsMp4, ffmpegArgsTrail, ['-f', 'mp4', '-y', '-']);
+      ffmpegArgs = ffmpegArgsBase.concat(ffmpegArgsMp4, ffmpegArgsTrail, ['-f', 'mp4', '-y', '-']);
       break;
     case 'mjpeg':
-      ffmpeg_args = ffmpegArgsBase.concat(ffmpegArgsMjpeg, ffmpegArgsTrail, ['-f', 'avi', '-y', '-']);
+      ffmpegArgs = ffmpegArgsBase.concat(ffmpegArgsMjpeg, ffmpegArgsTrail, ['-f', 'avi', '-y', '-']);
       break;
     case 'webm':
-      ffmpeg_args = ffmpegArgsBase.concat(ffmpegArgsWebM, ffmpegArgsTrail, ['-f', 'webm', '-y', '-']);
+      ffmpegArgs = ffmpegArgsBase.concat(ffmpegArgsWebM, ffmpegArgsTrail, ['-f', 'webm', '-y', '-']);
       break;
     default:
       throw new Error('video type ' + videoType + ' is not supported.');
   }
 
-  var ffmpeg_process = spawn(ffmpegBin, ffmpeg_args);
-  ffmpeg_process.stderr.setEncoding('utf8');
-  ffmpeg_process.stderr.on('data', function(data) {
+  log('running ffmpeg:');
+  log(ffmpegBin + ' ' + ffmpegArgs.join(' '));
+  var ffmpegProcess = spawn(ffmpegBin, ffmpegArgs);
+  ffmpegProcess.stderr.setEncoding('utf8');
+  ffmpegProcess.stderr.on('data', function(data) {
     log('ffmpeg: ' + data);
     if (/^execvp\(\)/.test(data)) {
-      log.error('failed to start ' + ffmpeg_process);
+      log.error('failed to start ffmpeg');
     }
   });
-  ffmpeg_process.on('exit', function(code) {
+  ffmpegProcess.on('exit', function(code) {
     log.warn('ffmpeg terminated with code ' + code);
   });
-  ffmpeg_process.on('error', function(e) {
+  ffmpegProcess.on('error', function(e) {
     log.warn('ffmpeg system error: ' + e);
   });
   // Pipe to /dev/null so that no buffering of pipe is done when no client is connected
   // Used for mjpeg and one global ffmpeg process
-  //ffmpeg_process.stdout.pipe(devnull());
-  return ffmpeg_process;
+  //ffmpegProcess.stdout.pipe(devnull());
+  return ffmpegProcess;
 }
 
 module.exports = ffmpeg;
