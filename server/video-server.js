@@ -1,15 +1,11 @@
 var http = require('http');
+var devnull = require('dev-null');
 var websocket = require('websocket-stream');
 
 var ffmpeg = require('./ffmpeg-handler');
 
 var server = null;
 var videoType = null;
-
-// mp4 needs headers in beginning of file, thus
-// one globa ffmpeg process for all clients does not work.
-// Only works with mjpeg
-var ffmpeg_process = null; // ffmpeg(videoType);
 
 module.exports.start = function(opts, callback) {
   if (server) {
@@ -30,15 +26,23 @@ module.exports.start = function(opts, callback) {
   }
   opts.binary = true;
 
+  var ffmpeg_process = ffmpeg(videoType);
+  var mp4Headers = [];
+  ffmpeg_process.stdout.on('data', function(data) {
+      if (mp4Headers.length < 3) {
+            mp4Headers.push(data);
+      }
+  });
+
   websocket.createServer(opts, video);
 
   function video(stream) {
-    ffmpeg_process = ffmpeg(videoType);
+    // Re-send buffered mp4 packets
+    for (var i = 0; i < mp4Headers.length; i++) {
+      stream.write(mp4Headers[i]);
+      console.log(mp4Headers[i])
+    }
     ffmpeg_process.stdout.pipe(stream);
-    stream.on('finish', function() {
-      ffmpeg_process.kill();
-      ffmpeg_process = null;
-    });
   }
 };
 

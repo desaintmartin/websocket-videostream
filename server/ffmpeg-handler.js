@@ -22,7 +22,7 @@ var ffmpegArgsMp4 = [
   '-bufsize', '0',
   '-keyint_min', '5',
   '-g', '5',
-  '-movflags', 'frag_keyframe+empty_moov+default_base_moof+omit_tfhd_offset',
+  '-movflags', 'frag_keyframe+empty_moov+default_base_moof+omit_tfhd_offset+isml',
   '-flags', '+global_header', '-bsf:v', 'dump_extra',
 ];
 var ffmpegArgsWebM = [
@@ -92,7 +92,7 @@ function ffmpeg(videoType) {
   });
   // Pipe to /dev/null so that no buffering of pipe is done when no client is connected
   // Used for mjpeg and one global ffmpeg process
-  //ffmpeg_process.stdout.pipe(devnull());
+  ffmpeg_process.stdout.pipe(devnull());
   return ffmpeg_process;
 }
 
