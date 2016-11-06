@@ -32,7 +32,6 @@ function initializeVideo() {
     console.log('Browser supports ' + mimeCodec + ' video codec.');
     decodeAndPlayWithVideo();
   }
-  websocketVideoStream.init();
 }
 
 function decodeAndPlayWithCanvas() {
@@ -63,10 +62,10 @@ function decodeAndPlayWithCanvas() {
     img.onerror = function(stuff) {
     };
   });
-
   websocketVideoStream.ondata = function(_d) {
     mjpegDecoder.write(_d);
   };
+  websocketVideoStream.init();
 }
 
 function decodeAndPlayWithVideo() {
@@ -78,6 +77,7 @@ function decodeAndPlayWithVideo() {
   var mediaSource = new MediaSource();
   var sourceBuffer = null;
   var queue = [];
+  var initialized = false;
 
   video.src = window.URL.createObjectURL(mediaSource);
   video.style.display = 'block';
@@ -106,37 +106,72 @@ function decodeAndPlayWithVideo() {
     console.error('Media error: ' + msg);
   });
   video.addEventListener('stalled', function(e) {
-    console.log('Media stalled');
+    console.warn('Video: stalled');
   });
-  window.mediaSource = mediaSource; // XXX remove me
+  video.addEventListener('loadeddata', function(e) {
+    console.log('Video: loaded data');
+  });
+  video.addEventListener('loadedmetadata', function(e) {
+    console.log('Video: loaded meatadata');
+  });
+  video.addEventListener('playing', function(e) {
+    console.debug('Video: now loaded and playing');
+  });
+  video.addEventListener('canplaythrough', function(e) {
+    console.debug('Video: can play through');
+  });
+  video.addEventListener('canplay', function(e) {
+    console.debug('Video: can play');
+  });
 
   mediaSource.addEventListener('sourceopen', function() {
     sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
-    sourceBuffer.addEventListener('updateend', function() {
-      if (!queue.length || sourceBuffer.updating) {
-        return;
-      }
-      try {
-        sourceBuffer.appendBuffer(queue.shift());
-      } catch (e) {
-        console.error(e);
-      }
-    }, false);
-
-    websocketVideoStream.ondata = function(d) {
-      if (queue.length) {
-        queue.push(d);
-        return;
-      }
-      if (sourceBuffer.updating) {
-        queue.push(d);
-        return;
-      }
-      sourceBuffer.appendBuffer(d);
-
-      if (video.paused) {
-        video.play();
-      }
-    };
+    sourceBuffer.addEventListener('updateend', onSourceBufferUpdateEnd, false);
+    document.body.addEventListener('touchstart', startWebsocket);
+    document.body.addEventListener('click', startWebsocket);
   });
+
+  function startWebsocket() {
+    if (initialized) {
+      return;
+    }
+    initialized = true;
+    websocketVideoStream.ondata = onWebsocketData;
+    websocketVideoStream.init();
+  }
+
+  function onWebsocketData(d) {
+    if (queue.length) {
+      // If there is any queue, push to queue and don't try to append to buffer
+      // In order to respect data order
+      queue.push(d);
+      return;
+    }
+    if (sourceBuffer.updating) {
+      // If the buffer is busy, push to queue
+      queue.push(d);
+      return;
+    }
+    // Default case: directly append to buffer
+    sourceBuffer.appendBuffer(d);
+
+    if (video.paused) {
+      video.play();
+    }
+  }
+
+  function onSourceBufferUpdateEnd() {
+    // If there is any queue, append it to the buffer before new data arrives
+    if (!queue.length || sourceBuffer.updating) {
+      // Don't even try if another frame has been pushed by network
+      return;
+    }
+    try {
+      // Append the data put in queue
+      sourceBuffer.appendBuffer(queue.shift());
+    } catch (e) {
+      console.error(e);
+    }
+  }
 }
+
