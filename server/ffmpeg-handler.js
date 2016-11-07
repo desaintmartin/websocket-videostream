@@ -2,15 +2,13 @@ const spawn = require('child_process').spawn;
 const devnull = require('dev-null');
 const log = require('./logger');
 
-var ffmpegBin = '/usr/bin/ffmpeg';
+var ffmpegBin = '/Users/FTVEN/Desktop/ffmpeg-3.1.5-win32-static/bin/ffmpeg';
 var ffmpegArgsBase = [
-  '-re',
-  '-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=815200.m3u8',
-  //'-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=553600.m3u8',
-  //'-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=1465200.m3u8',
+  //'-re',
   //'-i', 'rtmp://127.0.0.1:1935/live/latency', // srs
   //'-f', 'lavfi', '-graph', 'color=c=blue [out0]', '-i', 'dummy',
   '-f', 'dshow', '-i', 'video=Dektec Video Capture 4245091420 - 1',
+  //'-f', 'dshow', '-i', 'video=screen-capture-recorder', '-vf', 'scale=720x480',
   '-pix_fmt', 'yuv420p',
   '-filter:v', 'fps=30',
   '-fflags', '+genpts',
@@ -18,15 +16,16 @@ var ffmpegArgsBase = [
 ];
 var ffmpegArgsMp4 = [
   '-codec:v', 'libx264',
-  '-profile:v', 'high',
-  '-level', '4.1',
-  '-preset', 'superfast',
+  '-profile:v', 'baseline',
+  '-level', '3.1',
+  '-preset', 'ultrafast',
   '-tune', 'zerolatency',
   '-bufsize', '0',
-  '-keyint_min', '5',
-  '-g', '5',
+  '-keyint_min', '1',
+  '-g', '1',
   '-movflags', 'frag_keyframe+empty_moov+default_base_moof+omit_tfhd_offset',
   '-flags', '+global_header', '-bsf:v', 'dump_extra',
+  '-reset_timestamps', '1',
 ];
 var ffmpegArgsWebM = [
   '-codec:v', 'libvpx-vp9',
@@ -47,6 +46,7 @@ var ffmpegArgsWebM = [
 ];
 var ffmpegArgsMjpeg = [
   '-codec:v', 'mjpeg',
+  '-q:v', '2',
   '-pix_fmt', 'yuvj420p',
   '-s', '320:240',
   '-q:v', '2',
@@ -56,7 +56,7 @@ var ffmpegArgsMjpeg = [
   '-vsync', 'drop',
 ];
 var ffmpegArgsTrail = [
-  '-vf', "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: text='%{localtime\\:%T}': fontcolor=white@0.8: x=7: y=7",
+  //'-vf', "drawtext=fontfile=/Windows/Fonts/arial.ttf: text='%{localtime\\:%T}': fontcolor=white@0.8: x=20: y=20",
   '-avioflags', 'direct',
   '-flush_packets', '1',
 ];

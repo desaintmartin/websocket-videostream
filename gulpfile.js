@@ -32,7 +32,9 @@ gulp.task('js-lint', function() {
 
 gulp.task('default', function(callback) {
     sequence(
-        'js-lint', 'generate-client',
+	    'install',
+	    'js-lint',
+        'generate-client',
         callback
     );
 });
