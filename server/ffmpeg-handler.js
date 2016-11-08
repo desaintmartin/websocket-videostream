@@ -46,6 +46,11 @@ var ffmpegArgsMjpeg = [
   '-codec:v', 'mjpeg',
   '-pix_fmt', 'yuvj420p',
   '-s', '320:240',
+  '-q:v', '2',
+  '-qmax:v', '31',
+  '-qmin:v', '2',
+  '-pix_fmt', 'yuvj420p',
+  '-vsync', 'drop',
 ];
 var ffmpegArgsTrail = [
   '-vf', "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: text='%{localtime\\:%T}': fontcolor=white@0.8: x=7: y=7",
