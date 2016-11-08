@@ -24,14 +24,14 @@ xhrPromise.send({
 function initializeVideo() {
   var video = document.getElementById('vid');
   var canvas = document.getElementById('cid');
-  if ('MediaSource' in window && MediaSource.isTypeSupported(mimeCodec)) {
+  if (mimeCodec === 'video/x-msvideo') {
+    console.log('Receiving MJPEG, decoding through canvas.');
+    canvasDecoder();
+  } else if ('MediaSource' in window && MediaSource.isTypeSupported(mimeCodec)) {
     console.log('Browser supports ' + mimeCodec + ' video codec.');
     video.style.display = 'block';
     canvas.style.display = 'none';
     videoDecoder(mimeCodec);
-  } else if (mimeCodec === 'mjpeg') {
-    console.log('Receiving MJPEG, decoding through canvas.');
-    canvasDecoder();
   } else {
     throw new Error(mimeCodec + ' not supported, aborting.');
   }
