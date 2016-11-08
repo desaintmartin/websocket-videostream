@@ -5,6 +5,8 @@ const mjpegDecoder = new JPEGExtractorStream();
 const canvas = document.getElementById('cid');
 var ctxt = canvas.getContext('2d');
 var websocketVideoStream = new WSStream('ws://' + location.hostname);
+websocketVideoStream.ondata = d => mjpegDecoder.write(d);
+websocketVideoStream.init();
 
 function decodeAndPlayWithCanvas() {
   mjpegDecoder.on('image', onImage);
