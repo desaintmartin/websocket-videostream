@@ -10,6 +10,7 @@ var ffmpegArgsBase = [
   //'-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=1465200.m3u8',
   //'-i', 'rtmp://127.0.0.1:1935/live/latency', // srs
   //'-f', 'lavfi', '-graph', 'color=c=blue [out0]', '-i', 'dummy',
+  '-fflags', '+genpts',
   '-an'
 ];
 var ffmpegArgsMp4 = [
