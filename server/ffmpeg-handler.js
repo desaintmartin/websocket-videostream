@@ -9,7 +9,7 @@ var ffmpegArgsBase = [
   '-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=815200.m3u8',
   //'-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=1465200.m3u8',
   //'-i', 'rtmp://127.0.0.1:1935/live/latency', // srs
-  //'-f', 'lavfi', '-graph', 'color=c=black [out0]', '-i', 'dummy',
+  //'-f', 'lavfi', '-graph', 'color=c=blue [out0]', '-i', 'dummy',
   '-an'
 ];
 var ffmpegArgsMp4 = [
@@ -43,9 +43,11 @@ var ffmpegArgsWebM = [
 ];
 var ffmpegArgsMjpeg = [
   '-codec:v', 'mjpeg',
-  '-b:v', '2000k',
-  '-bufsize', '1000k',
-  '-maxrate', '5000k',
+  '-q:v', '31',
+  '-qmax:v', '31',
+  '-qmin:v', '31',
+  '-pix_fmt', 'yuvj420p',
+  '-vsync', 'drop',
 ];
 var ffmpegArgsTrail = [
   '-vf', "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: text='%{localtime\\:%T}': fontcolor=white@0.8: x=7: y=7",
