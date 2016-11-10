@@ -2,5 +2,6 @@ www/js/dist/video-client.js
 node_modules
 .*
 !.jshintrc
+!.jshintignore
 !.gitignore
 
