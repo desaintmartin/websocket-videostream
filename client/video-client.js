@@ -20,14 +20,14 @@ xhrPromise.send({
 
 function initializeVideo() {
   var video = document.getElementById('vid');
-  var canvas = document.getElementById('cid');
+  var img = document.getElementById('iid');
   if (mimeCodec === 'video/x-msvideo') {
-    console.log('Receiving MJPEG, decoding through canvas.');
-    require('./decoders/canvas-decoder')();
+    console.log('Receiving MJPEG, decoding through <img>.');
+    require('./decoders/mjpeg-decoder')();
   } else if ('MediaSource' in window && MediaSource.isTypeSupported(mimeCodec)) {
     console.log('Browser supports ' + mimeCodec + ' video codec.');
     video.style.display = 'block';
-    canvas.style.display = 'none';
+    img.style.display = 'none';
     require('./decoders/video-decoder')(mimeCodec);
   } else {
     throw new Error(mimeCodec + ' not supported, aborting.');

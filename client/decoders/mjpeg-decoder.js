@@ -1,14 +1,30 @@
+const imagesLoaded = require('imagesloaded');
+
 const jpegExtractor = require('../jpeg-extractor');
 const WSStream = require('../wsstream');
 
-const mjpegDecoder = new JPEGExtractorStream();
 const canvas = document.getElementById('cid');
 var ctxt = canvas.getContext('2d');
-var websocketVideoStream = new WSStream('ws://' + location.hostname);
-websocketVideoStream.ondata = d => mjpegDecoder.write(d);
-websocketVideoStream.init();
+var img = document.getElementById('iid');
+
+function play() {
+  var imgLoad = imagesLoaded(img);
+  imgLoad.on('fail', function() {
+    console.log('Browser does not support mjpeg in <img>, using canvas/websocket.');
+    img.style.display = 'none';
+    decodeAndPlayWithCanvas();
+  });
+  img.src = '/video';
+}
 
 function decodeAndPlayWithCanvas() {
+  const mjpegDecoder = new JPEGExtractorStream();
+  canvas.style.display = 'block';
+  var websocketVideoStream = new WSStream('ws://' + location.hostname);
+  websocketVideoStream.ondata = function(d) {
+    mjpegDecoder.write(d);
+  };
+  websocketVideoStream.init();
   mjpegDecoder.on('image', onImage);
 }
 
@@ -37,4 +53,4 @@ function onImage(imgData) {
   };
 }
 
-module.exports = decodeAndPlayWithCanvas;
+module.exports = play;
