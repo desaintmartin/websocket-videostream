@@ -28,7 +28,7 @@
     "express": "^4.14.0",
     "nocache": "^2.0.0",
     "simple-node-logger": "^0.93.12",
-    "websocket-stream": "^3.3.0",
+    "websocket-stream": "desaintmartin/websocket-stream",
     "xhr-promise": "^2.0.0"
   },
   "devDependencies": {
