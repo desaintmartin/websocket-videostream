@@ -6,7 +6,7 @@ body {
     background-color: black;
 }
 
-canvas {
+img, canvas {
   width:100vw;
   height:56.25vw;
 }

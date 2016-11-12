@@ -55,6 +55,7 @@ function startWorker() {
   videoServer.start(
     {
       server: httpServer,
+      app: app,
       videoType: options.type
     },
     function(err) {

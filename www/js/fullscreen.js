@@ -1,5 +1,8 @@
 function toggleFullScreenAndPlay() {
-  document.getElementById('vid').play();
+  var vid = document.getElementById('vid')
+  if (vid) {
+    vid.play();
+  }
   if (document.documentElement.requestFullscreen) {
     document.documentElement.requestFullscreen();
   } else if (document.documentElement.mozRequestFullScreen) {

@@ -5,8 +5,8 @@ const log = require('./logger');
 var ffmpegBin = '/usr/bin/ffmpeg';
 var ffmpegArgsBase = [
   '-re',
-  //'-i','http://live.francetv.fr/simulcast/France_Info/hls/index.m3u8',
   '-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=815200.m3u8',
+  //'-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=553600.m3u8',
   //'-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=1465200.m3u8',
   //'-i', 'rtmp://127.0.0.1:1935/live/latency', // srs
   //'-f', 'lavfi', '-graph', 'color=c=blue [out0]', '-i', 'dummy',
@@ -44,11 +44,8 @@ var ffmpegArgsWebM = [
 ];
 var ffmpegArgsMjpeg = [
   '-codec:v', 'mjpeg',
-  '-q:v', '31',
-  '-qmax:v', '31',
-  '-qmin:v', '31',
   '-pix_fmt', 'yuvj420p',
-  '-vsync', 'drop',
+  '-s', '320:240',
 ];
 var ffmpegArgsTrail = [
   '-vf', "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: text='%{localtime\\:%T}': fontcolor=white@0.8: x=7: y=7",
@@ -56,9 +53,7 @@ var ffmpegArgsTrail = [
   '-flush_packets', '1',
 ];
 
-var ffmpegGlobalProcess = null; // XXX TODO implement me
-
-function ffmpeg(videoType) {
+function ffmpeg(videoType, global=false) {
   if (!videoType) {
     videoType = 'mjpeg';
   }
@@ -69,7 +64,7 @@ function ffmpeg(videoType) {
       ffmpegArgs = ffmpegArgsBase.concat(ffmpegArgsMp4, ffmpegArgsTrail, ['-f', 'mp4', '-y', '-']);
       break;
     case 'mjpeg':
-      ffmpegArgs = ffmpegArgsBase.concat(ffmpegArgsMjpeg, ffmpegArgsTrail, ['-f', 'avi', '-y', '-']);
+      ffmpegArgs = ffmpegArgsBase.concat(ffmpegArgsMjpeg, ffmpegArgsTrail, ['-f', 'mpjpeg', '-y', '-']);
       break;
     case 'webm':
       ffmpegArgs = ffmpegArgsBase.concat(ffmpegArgsWebM, ffmpegArgsTrail, ['-f', 'webm', '-y', '-']);
@@ -94,9 +89,11 @@ function ffmpeg(videoType) {
   ffmpegProcess.on('error', function(e) {
     log.warn('ffmpeg system error: ' + e);
   });
-  // Pipe to /dev/null so that no buffering of pipe is done when no client is connected
-  // Used for mjpeg and one global ffmpeg process
-  //ffmpegProcess.stdout.pipe(devnull());
+  if (global === true) {
+    // Pipe to /dev/null so that no buffering of pipe is done when no client is connected
+    // Used for mjpeg and one global ffmpeg process
+    ffmpegProcess.stdout.pipe(devnull());
+  }
   return ffmpegProcess;
 }
 
