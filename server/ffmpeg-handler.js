@@ -2,7 +2,7 @@ const spawn = require('child_process').spawn;
 const devnull = require('dev-null');
 const log = require('./logger');
 
-var ffmpegBin = '/usr/bin/ffmpeg';
+var ffmpegBin = '/home/cedric/ffmpeg/ffmpeg-3.0.4/bin/ffmpeg'//'/usr/bin/ffmpeg';
 var ffmpegArgsBase = [
   '-re',
   '-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=815200.m3u8',
@@ -46,6 +46,13 @@ var ffmpegArgsMjpeg = [
   '-codec:v', 'mjpeg',
   '-pix_fmt', 'yuvj420p',
   '-s', '320:240',
+  '-q:v', '2',
+];
+var ffmpegArgsRtsp = [
+  '-f', 'rtsp',
+  //'-ps', '1500',
+  '-rtsp_transport', 'tcp',
+  '-y', 'tcp://127.0.0.1:4567/live/lowlatency', // XXX TODO proper configuration
 ];
 var ffmpegArgsTrail = [
   '-vf', "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: text='%{localtime\\:%T}': fontcolor=white@0.8: x=7: y=7",
@@ -62,6 +69,9 @@ function ffmpeg(videoType, global=false) {
   switch (videoType) {
     case 'mp4':
       ffmpegArgs = ffmpegArgsBase.concat(ffmpegArgsMp4, ffmpegArgsTrail, ['-f', 'mp4', '-y', '-']);
+      break;
+    case 'rtsp':
+      ffmpegArgs = ffmpegArgsBase.concat(ffmpegArgsMp4, ffmpegArgsTrail, ffmpegArgsRtsp);
       break;
     case 'mjpeg':
       ffmpegArgs = ffmpegArgsBase.concat(ffmpegArgsMjpeg, ffmpegArgsTrail, ['-f', 'mpjpeg', '-y', '-']);

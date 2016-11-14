@@ -1,8 +1,8 @@
 const http = require('http');
+const net = require('net');
 const websocket = require('websocket-stream');
 
 const ffmpeg = require('./ffmpeg-handler');
-
 
 module.exports.start = function(config, callback) {
   var global_ffmpeg_process = null;
@@ -18,7 +18,27 @@ module.exports.start = function(config, callback) {
     global_ffmpeg_process = ffmpeg(config.videoType, true);
   }
 
+  function socket2websocket(wsstream) {
+    // Run a ffmpeg sending to rtsp
+    // Create a listening socket receiving stream
+    // Send it through websocket to client
+    var ffmpeg_process = ffmpeg(config.videoType);
+    var server = net.createServer(function(socket) {
+      //socket.pipe(wsstream);
+      //wsstream.pipe(socket);
+      wsstream.on('finish', function() {
+        ffmpeg_process.kill();
+        server.close();
+      });
+    });
+    server.listen(4567, '127.0.0.1'); // XXX TODO hardcoded port
+  }
+
   function sendVideo(stream) {
+    if (config.videoType === 'rtsp') {
+      socket2websocket(stream);
+      return;
+    }
     if (global_ffmpeg_process !== null) {
       global_ffmpeg_process.stdout.pipe(stream);
       stream.on('finish', function() {
@@ -32,10 +52,9 @@ module.exports.start = function(config, callback) {
       });
     }
   }
-
   // Send video data through websocket
   var opts = {
-    binary: true,
+    binary: false,//true,
     server: config.server,
   };
   websocket.createServer(opts, sendVideo);

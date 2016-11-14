@@ -34,6 +34,9 @@ function startWorker() {
       case 'mp4':
         res.send('video/mp4; codecs="avc1.640029"'); //avc1.42E01F"');
         break;
+      case 'rtsp':
+        res.send('rtsp');
+        break;
       case 'mjpeg':
         res.send('video/x-msvideo');
         break;

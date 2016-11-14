@@ -23,7 +23,11 @@ function initializeVideo() {
   var img = document.getElementById('iid');
   if (mimeCodec === 'video/x-msvideo') {
     console.log('Receiving MJPEG, decoding through <img>.');
+    mimeCodec = 'video/mp4; codecs="avc1.640029"';
     require('./decoders/mjpeg-decoder')();
+  } else if (mimeCodec === 'rtsp') {
+    mimeCodec='video/mp4; codecs="avc1.640029"';
+    require('./decoders/video-decoder')(mimeCodec); // XXX TODO implement me
   } else if ('MediaSource' in window && MediaSource.isTypeSupported(mimeCodec)) {
     console.log('Browser supports ' + mimeCodec + ' video codec.');
     video.style.display = 'block';
