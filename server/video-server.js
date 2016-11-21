@@ -5,7 +5,7 @@ const ffmpeg = require('./ffmpeg-handler');
 
 
 module.exports.start = function(config, callback) {
-  var global_ffmpeg_process = null;
+  var globalFfmpegProcess = null;
   for (var arg in ['app', 'server', 'videoType']) {
     if (config[arg] === null) {
       throw new Exception(arg + ' not specified in configuration.');
@@ -15,20 +15,26 @@ module.exports.start = function(config, callback) {
     // mp4 needs headers in beginning of file, thus
     // one globa ffmpeg process for all clients does not work.
     // Only works with mjpeg
-    global_ffmpeg_process = ffmpeg(config.videoType, true);
+    globalFfmpegProcess = ffmpeg(config.videoType, true);
+	globalFfmpegProcess.on('exit', function(code) {
+      process.exit(1);
+    });
+    globalFfmpegProcess.on('error', function(e) {
+      process.exit(1);
+    });
   }
 
   function sendVideo(stream) {
-    if (global_ffmpeg_process !== null) {
-      global_ffmpeg_process.stdout.pipe(stream);
+    if (globalFfmpegProcess !== null) {
+      globalFfmpegProcess.stdout.pipe(stream);
       stream.on('finish', function() {
-        global_ffmpeg_process.stdout.unpipe(stream);
+        globalFfmpegProcess.stdout.unpipe(stream);
       });
     } else {
-      var ffmpeg_process = ffmpeg(config.videoType);
-      ffmpeg_process.stdout.pipe(stream);
+      var ffmpegProcess = ffmpeg(config.videoType);
+      ffmpegProcess.stdout.pipe(stream);
       stream.on('finish', function() {
-        ffmpeg_process.kill();
+        ffmpegProcess.kill();
       });
     }
   }
