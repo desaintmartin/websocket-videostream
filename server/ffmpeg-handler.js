@@ -5,9 +5,9 @@ const log = require('./logger');
 var ffmpegBin = '/usr/bin/ffmpeg';
 var ffmpegArgsBase = [
   '-re',
-  '-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=815200.m3u8',
-  //'-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=553600.m3u8',
-  //'-i', 'http://live.francetv.fr/simulcast/France_Info/hls/France_Info-video=1465200.m3u8',
+  '-i', 'http://live.francetv.fr/simulcast/France_Info/hls_v1/France_Info-video=815200.m3u8',
+  //'-i', 'http://live.francetv.fr/simulcast/France_Info/hls_v1/France_Info-video=553600.m3u8',
+  //'-i', 'http://live.francetv.fr/simulcast/France_Info/hls_v1/France_Info-video=1465200.m3u8',
   //'-i', 'rtmp://127.0.0.1:1935/live/latency', // srs
   //'-f', 'lavfi', '-graph', 'color=c=blue [out0]', '-i', 'dummy',
   '-f', 'dshow', '-i', 'video=Dektec Video Capture 4245091420 - 1',
